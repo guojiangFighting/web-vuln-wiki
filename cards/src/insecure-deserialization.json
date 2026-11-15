@@ -1,0 +1,46 @@
+{
+  "topic": "insecure-deserialization",
+  "category": "注入类",
+  "cards": [
+    {
+      "id": "insecure-deserialization-c1",
+      "difficulty": "basic",
+      "type": "概念",
+      "q": "反序列化漏洞与其它注入类漏洞的根本区别是什么？",
+      "a": "其它注入（SQLi/命令注入）把数据拼进某种查询或命令语言；反序列化则是把数据直接『变成对象』——还原过程会自动调用魔术方法（PHP __wakeup、Java readObject、Python __reduce__），攻击者控制字节流即控制『还原什么对象、调用什么方法』，因此常规的『数据只是数据』防线全部失效，危害上限直达 RCE。",
+      "hint": "别的注入是『骗解析器』，反序列化是『直接实例化』。"
+    },
+    {
+      "id": "insecure-deserialization-c2",
+      "difficulty": "basic",
+      "type": "排查",
+      "q": "如何在请求中识别『可能存在反序列化入口』的特征？说出至少三种语言的指纹。",
+      "a": "看 Cookie/参数/请求体里 base64 或 hex 解码后的形态：Java 序列化以 rO0AB（base64）/ AC ED 00 05（hex）开头；PHP 序列化是 O:8:\" 或 a:2:{ 这类『类型:长度:值』结构；Python pickle 是 \\x80\\x04 / gASV 开头；.NET ViewState 是 AAEAAAD/////。指纹出现的位置：会话 cookie、记住我、ViewState、消息队列与缓存值。",
+      "hint": "先 base64 解码再『看脸』——每种语言的序列化格式特征极强。"
+    },
+    {
+      "id": "insecure-deserialization-c3",
+      "difficulty": "advanced",
+      "type": "场景",
+      "q": "gadget 链是什么？为什么说『测试中确认反序列化入口可控』本身已足够定高危？",
+      "a": "gadget 链是把应用及其依赖里『反序列化过程中会触发危险操作』的已有方法串成执行序列——攻击者不注入新代码，只重排已有代码的调用。确认『入口可控』（能注入/篡改序列化数据且服务端会还原）已证明攻击者控制了对象图，至于能否走到 RCE 只取决于 classpath 里有没有可用 gadget——这是组件版本问题，不是入口问题。报告时确认入口 + 列出组件版本即可定级。",
+      "hint": "入口可控 = 弹药上膛，gadget 只是扣扳机的工具是否在场。"
+    },
+    {
+      "id": "insecure-deserialization-c4",
+      "difficulty": "advanced",
+      "type": "辨析",
+      "q": "对序列化数据加了 HMAC 签名，为什么仍不能视为已修复？",
+      "a": "签名提供完整性——『数据没被改』，但不阻止『还原行为』本身：签名数据可以整体重放（旧版本签名对象在新逻辑下可能有新的 gadget 语义），且签名的前提是密钥安全，密钥泄露/可爆破时签名形同虚设。治本只有一条：不反序列化不可信数据（改用 JSON 等纯数据格式），签名只是纵深缓解。",
+      "hint": "签名回答『改没改』，不回答『该不该还原』。"
+    },
+    {
+      "id": "insecure-deserialization-c5",
+      "difficulty": "trap",
+      "type": "辨析",
+      "q": "判断题：页面和接口都没发现序列化特征串，反序列化漏洞可以排除。",
+      "a": "错。序列化对象大量存在于『非 HTTP 边界』：消息队列、缓存（Redis/Memcached 里的对象）、RPC、内部服务的存储格式。从外部看不到指纹不代表内部边界没有反序列化不可信数据的路径——经 SSRF/SQLi 拿到内部写入能力后，这些就是纵深目标。外部确认只能排除『直接入口』，排除不了架构面。",
+      "pitfall": "黑盒没看到 ≠ 不存在——尤其这种内部边界为主的漏洞类别。"
+    }
+  ]
+}

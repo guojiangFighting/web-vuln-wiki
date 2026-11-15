@@ -9,8 +9,8 @@
   },
   "disclaimer": "仅用于授权安全测试与防御学习。",
   "stats": {
-    "topics": 28,
-    "cards": 143,
+    "topics": 32,
+    "cards": 163,
     "categories": [
       "信息泄露与配置类",
       "前端与跨站类",
@@ -173,6 +173,40 @@
         "directory"
       ],
       "summary": "用户输入被拼进 LDAP 查询过滤器，输入里的括号与 `*` 通配符改写了过滤条件——和 SQL 注入同根，但利用面更窄：没有 UNION，主要靠条件真假与返回条数说话。",
+      "cards": 5
+    },
+    {
+      "id": "insecure-deserialization",
+      "path": "10-injection/insecure-deserialization.md",
+      "title": "不安全的反序列化（Insecure Deserialization）",
+      "category": "注入类",
+      "severity": "critical",
+      "owasp": "A08:2021-Software and Data Integrity Failures",
+      "cwe": "CWE-502",
+      "tags": [
+        "deserialization",
+        "rce",
+        "gadget",
+        "owasp-top10"
+      ],
+      "summary": "应用把不可信数据「还原」成语言对象时，构造的序列化字节流会在还原过程中自动执行对象的方法——攻击者借此从篡改属性（逻辑绕过）一路走到远程代码执行（gadget 链）。",
+      "cards": 5
+    },
+    {
+      "id": "crlf-injection",
+      "path": "10-injection/crlf-injection.md",
+      "title": "CRLF 注入（CRLF Injection / Header Injection）",
+      "category": "注入类",
+      "severity": "medium",
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-93",
+      "tags": [
+        "crlf",
+        "header-injection",
+        "response-splitting",
+        "log-injection"
+      ],
+      "summary": "用户输入里的回车换行符（`\\r\\n`，即 CRLF）被拼进 HTTP 响应头或日志文本，改变了「行」的结构——在响应头里能注入新头乃至拆分出第二个响应，在日志里能伪造任意记录。",
       "cards": 5
     },
     {
@@ -340,6 +374,41 @@
         "lifecycle"
       ],
       "summary": "会话是从「登录成功」到「登出失效」的整条生命周期——生成可预测、传输可截获、失效不彻底，任何一环的缺陷都让攻击者无需密码就能持有你的身份。",
+      "cards": 5
+    },
+    {
+      "id": "graphql-security",
+      "path": "30-authn-authz/graphql-security.md",
+      "title": "GraphQL 安全（GraphQL Security）",
+      "category": "访问控制与认证类",
+      "severity": "high",
+      "owasp": "A01:2021-Broken Access Control",
+      "cwe": "CWE-285",
+      "tags": [
+        "graphql",
+        "api",
+        "access-control",
+        "introspection"
+      ],
+      "summary": "GraphQL 把所有接口折叠进一个端点、由客户端自由拼装查询——传统「按 URL 做鉴权/限流/缓存」的整套体系全部失效，**每个字段（resolver）都必须独立做对象级校验**，漏一个就是越权。",
+      "cards": 5
+    },
+    {
+      "id": "crypto-failures",
+      "path": "30-authn-authz/crypto-failures.md",
+      "title": "加密失败（Cryptographic Failures）",
+      "category": "访问控制与认证类",
+      "severity": "high",
+      "owasp": "A02:2021-Cryptographic Failures",
+      "cwe": "CWE-327",
+      "tags": [
+        "crypto",
+        "password",
+        "hash",
+        "key-management",
+        "owasp-top10"
+      ],
+      "summary": "该保护的数据没保护到位：密码用快哈希裸存、密钥写死在代码里、随机数可预测、敏感字段明文入库——传输层（HTTPS）和访问控制都对，数据本身仍然是裸奔的。",
       "cards": 5
     },
     {

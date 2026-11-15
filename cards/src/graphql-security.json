@@ -1,0 +1,46 @@
+{
+  "topic": "graphql-security",
+  "category": "访问控制与认证类",
+  "cards": [
+    {
+      "id": "graphql-security-c1",
+      "difficulty": "basic",
+      "type": "概念",
+      "q": "为什么说 GraphQL 让传统『按 URL 配置』的安全体系失效？",
+      "a": "REST 的安全模型建立在『一个 URL = 一个功能』：网关按路径配鉴权、限流、缓存。GraphQL 是『一个 URL = 所有功能』：客户端自由拼装查询，网关只能验『能不能访问这个端点』（通常只验登录），字段级的对象归属校验落在每个 resolver——漏写一个就是越权；限流按请求数计数时，别名（alias）让一个请求执行 N 次逻辑；缓存按 URL 键控时 query 各不相同全部 miss。",
+      "hint": "粒度从 URL 变成了字段——粒度错位就是漏洞。"
+    },
+    {
+      "id": "graphql-security-c2",
+      "difficulty": "basic",
+      "type": "排查",
+      "q": "如何发现目标暴露的 GraphQL 端点？introspection 被禁时还能枚举 schema 吗？",
+      "a": "端点发现：/graphql、/api/graphql、/graphiql（调试界面）、版本前缀变体；GET ?query={__typename} 探测；前端 JS 里搜 graphql 与 query 模板。introspection 被禁时仍可：① 字段建议（suggestions）——查询不存在的字段，报错的『你是不是想查 xxx』按字典枚举；② 部分实现只禁顶层 __schema，__type(name:) 仍可达；③ 从前端 bundle 里的历史 query 还原字段。",
+      "hint": "自描述是 GraphQL 的双刃剑——禁用也常有残留通道。"
+    },
+    {
+      "id": "graphql-security-c3",
+      "difficulty": "advanced",
+      "type": "场景",
+      "q": "别名（alias）轰炸如何绕过按请求数计数的限流？怎么验证真的生效？",
+      "a": "GraphQL 允许一个请求里用别名重复同一 mutation：mutation { a: login(...) b: login(...) ... }——请求数是 1，逻辑执行是 N。验证生效要看业务终态：OTP 枚举场景确认服务端真的做了 N 次校验（响应里 N 个结果各自有真值），登录爆破场景看失败计数/锁定行为是否按 N 次推进。仅 HTTP 200 不算证据。",
+      "hint": "限流数请求，GraphQL 数操作——两个计数器对不上。"
+    },
+    {
+      "id": "graphql-security-c4",
+      "difficulty": "advanced",
+      "type": "排查",
+      "q": "GraphQL 端点的越权测试与 REST 有什么不同？测试矩阵怎么排？",
+      "a": "不同点：REST 是端点 × 角色 × 方法，GraphQL 是字段/resolver × 角色 × 对象。排法：① introspection 全图导出（或 suggestions 枚举）拿到字段清单；② 找『对象 id 参数』与『跨关系访问』的查询（user(id:)、嵌套 relations）；③ 双账号交叉——A 会话查 B 的对象级字段（邮箱/订单/地址）；④ 检查 federation 多子图时各子图鉴权是否一致。REST 修好的接口不代表同一数据的 GraphQL 字段也修好了——它们是两条代码路径。",
+      "hint": "同一份数据的 REST 出口和 GraphQL 出口是两套鉴权代码。"
+    },
+    {
+      "id": "graphql-security-c5",
+      "difficulty": "trap",
+      "type": "辨析",
+      "q": "判断题：网关对所有请求统一验了 JWT 签名和登录态，GraphQL 的越权问题就不存在了。",
+      "a": "错。验签+登录态回答的是『是不是合法用户』，回答不了『这个字段是不是这个人能看的』——GraphQL 的安全问题几乎全是粒度问题：对象级归属校验必须落在每个 resolver。网关层的统一认证反而制造虚假安全感，因为它掩盖了『字段级授权缺失』这一真正的缺口。",
+      "pitfall": "『统一认证』和『逐对象授权』是两层，前者永远替代不了后者。"
+    }
+  ]
+}

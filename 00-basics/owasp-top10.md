@@ -20,25 +20,26 @@ tags: [owasp, basics, checklist]
 | 编号 | 名称 | 一句话含义 | 典型 CWE | 本 wiki 主对应 |
 |------|------|-----------|----------|----------------|
 | A01 | Broken Access Control（失效的访问控制） | 没有在服务端逐对象校验「这个身份能不能动这个资源」 | CWE-200/285 | [越权总类](../30-authn-authz/access-control.md) |
-| A02 | Cryptographic Failures（加密失败） | 该加密/哈希的没做或做错 | CWE-259/327 | 部分涉及 [JWT 攻击](../30-authn-authz/jwt-attacks.md) |
+| A02 | Cryptographic Failures（加密失败） | 该加密/哈希的没做或做错 | CWE-259/327 | [加密失败](../30-authn-authz/crypto-failures.md)、部分涉及 [JWT 攻击](../30-authn-authz/jwt-attacks.md) |
 | A03 | Injection（注入） | 数据被当成代码解析 | CWE-79/89 | [SQL 注入](../10-injection/sql-injection.md)、[XSS](../20-frontend/xss.md) 等全部注入类 |
 | A04 | Insecure Design（不安全设计） | 代码写得再对，设计本身就缺防御 | CWE-209/256 | [业务逻辑](../50-logic-concurrency/business-logic.md)、[竞态条件](../50-logic-concurrency/race-condition.md) |
 | A05 | Security Misconfiguration（安全配置错误） | 默认配置、多余功能、暴露的调试面 | CWE-16/611 | [配置错误](../60-info-config/misconfiguration.md) |
 | A06 | Vulnerable & Outdated Components（易受攻击的过时组件） | 依赖与中间件带着已知漏洞上场 | CWE-1104 | 归入[配置错误](../60-info-config/misconfiguration.md) |
 | A07 | Identification & Authentication Failures（身份识别与认证失败） | 认证与会话管理的设计缺陷 | CWE-798/384 | [会话管理](../30-authn-authz/session-management.md) |
-| A08 | Software & Data Integrity Failures（软件与数据完整性失败） | 不验证更新、反序列化、CI/CD 的信任链 | CWE-502 | 本 wiki 未单列（反序列化进阶再补） |
+| A08 | Software & Data Integrity Failures（软件与数据完整性失败） | 不验证更新、反序列化、CI/CD 的信任链 | CWE-502 | [不安全的反序列化](../10-injection/insecure-deserialization.md) |
 | A09 | Security Logging & Monitoring Failures（日志与监控失败） | 出了事没人知道 | CWE-778 | 与[信息泄露](../60-info-config/info-disclosure.md)互为反面 |
 | A10 | Server-Side Request Forgery（SSRF） | 服务端替攻击者发请求 | CWE-918 | [SSRF](../40-files-requests/ssrf.md) |
 
 ## 本 wiki 全部条目 × Top 10 映射表
 
-测试某个目标时，可以按下表把 28 个条目组织成 checklist（链接均为 wiki 内相对路径）。
+测试某个目标时，可以按下表把全部 32 个条目组织成 checklist（链接均为 wiki 内相对路径）。
 
 ### A01 失效的访问控制
 | 条目 | 一句话检查点 |
 |------|--------------|
 | [CSRF](../20-frontend/csrf.md) | 写操作有没有 Token / SameSite 保护 |
 | [开放重定向](../20-frontend/open-redirect.md) | 跳转参数是否可指向外域 |
+| [GraphQL 安全](../30-authn-authz/graphql-security.md) | resolver 是否逐字段做对象级授权 |
 | [IDOR](../30-authn-authz/idor.md) | 换对象 id 能否读改他人资源 |
 | [越权总类](../30-authn-authz/access-control.md) | 普通角色能否触达管理端点 |
 | [路径穿越](../40-files-requests/path-traversal.md) | 文件参数能否跳出基准目录 |
@@ -55,6 +56,12 @@ tags: [owasp, basics, checklist]
 | [LDAP 注入](../10-injection/ldap-injection.md) | 过滤器参数是否可拼接 |
 | [XSS](../20-frontend/xss.md) | 输入是否在未编码情况下回显 |
 | [原型污染](../20-frontend/prototype-pollution.md) | `__proto__` 键是否被合并进对象 |
+| [CRLF 注入](../10-injection/crlf-injection.md) | 拼进响应头/日志的输入是否过滤换行 |
+
+### A02 加密失败
+| 条目 | 一句话检查点 |
+|------|--------------|
+| [加密失败](../30-authn-authz/crypto-failures.md) | 密码存储算法、密钥管理、随机数来源逐项核对 |
 
 ### A04 不安全设计
 | 条目 | 一句话检查点 |
@@ -77,6 +84,11 @@ tags: [owasp, basics, checklist]
 |------|--------------|
 | [JWT 攻击](../30-authn-authz/jwt-attacks.md) | alg 是否可控、签名是否必校验 |
 | [会话管理](../30-authn-authz/session-management.md) | 登出后旧会话是否失效 |
+
+### A08 软件与数据完整性失败
+| 条目 | 一句话检查点 |
+|------|--------------|
+| [不安全的反序列化](../10-injection/insecure-deserialization.md) | 序列化特征串是否出现在不可信边界 |
 
 ### A10 SSRF
 | 条目 | 一句话检查点 |

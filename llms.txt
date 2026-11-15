@@ -1,6 +1,6 @@
 # Web 漏洞学习 Wiki
 
-> 一个面向 LLM 与人类双端优化的 Web 漏洞知识库。28 个条目，统一结构（一句话/原理/攻击场景/检测/绕过/修复/误区/关联），每个条目配 4~6 张知识卡。仅用于授权安全测试与防御学习。
+> 一个面向 LLM 与人类双端优化的 Web 漏洞知识库。32 个条目，统一结构（一句话/原理/攻击场景/检测/绕过/修复/误区/关联），每个条目配 4~6 张知识卡。仅用于授权安全测试与防御学习。
 
 ## 机器可读索引
 
@@ -8,6 +8,7 @@
 - [cards/cards.json](cards/cards.json)：143 张结构化知识卡（difficulty: basic|advanced|trap；type: 概念|场景|辨析|排查）。
 - [cards/anki-import.tsv](cards/anki-import.tsv)：Anki 导入格式（正面 / 背面 / 标签）。
 - [cards/viewer.html](cards/viewer.html)：人类用交互学习卡片。
+- 姊妹库（实战方法论）：../web-pentest-playbook/llms.txt —— 回答「怎么打、打不动怎么办」。
 
 ## 基础
 
@@ -23,6 +24,8 @@
 - [SSTI](10-injection/ssti.md)：输入进模板源被当表达式求值；先指纹、再对象图、后执行面的利用方法论。
 - [XXE](10-injection/xxe.md)：外部实体让解析器替你读文件、发请求；修复在解析器配置层（禁 DTD）。
 - [LDAP 注入](10-injection/ldap-injection.md)：括号与通配符改写过滤器；无 UNION，靠枚举与结构泄露说话。
+- [不安全的反序列化](10-injection/insecure-deserialization.md)：序列化字节流还原成对象并执行魔术方法；入口可控即高危。
+- [CRLF 注入](10-injection/crlf-injection.md)：换行符改写响应头/日志的行结构；当下危害在头注入与日志注入。
 
 ## 前端与跨站类
 
@@ -39,6 +42,8 @@
 - [失效的访问控制](30-authn-authz/access-control.md)：水平/垂直/未授权三类越权总框架；角色矩阵法与 deny by default。
 - [JWT 攻击](30-authn-authz/jwt-attacks.md)：alg 可控、密钥混淆、声明不校验——算法选择权必须永远在验签方。
 - [会话管理](30-authn-authz/session-management.md)：生成/传输/存储/失效四环节；登出重放是最高频缺陷。
+- [GraphQL 安全](30-authn-authz/graphql-security.md)：单端点让 URL 级防护失效，每个 resolver 都要对象级授权。
+- [加密失败](30-authn-authz/crypto-failures.md)：弱哈希/硬编码密钥/弱随机/明文存储——数据的三个阶段各有要求。
 
 ## 文件与请求类
 

@@ -1,6 +1,6 @@
 # Web 漏洞学习 Wiki
 
-> 一个面向 LLM 与人类双端优化的 Web 漏洞知识库。32 个条目，统一结构（一句话/原理/攻击场景/检测/绕过/修复/误区/关联），每个条目配 4~6 张知识卡。仅用于授权安全测试与防御学习。
+> 一个面向 LLM 与人类双端优化的 Web 漏洞知识库。33 个条目，统一结构（一句话/原理/攻击场景/检测/绕过/修复/误区/关联），每个条目配 4~6 张知识卡。仅用于授权安全测试与防御学习。
 
 ## 机器可读索引
 
@@ -35,6 +35,7 @@
 - [点击劫持](20-frontend/clickjacking.md)：透明 iframe 视觉欺骗，请求真实因此绕过 CSRF 防御；frame-ancestors 修复。
 - [开放重定向](20-frontend/open-redirect.md)：跳转参数可控；OAuth 域内即升级为授权码泄露。
 - [原型污染](20-frontend/prototype-pollution.md)：__proto__ 写穿全局原型；危害由 gadget 决定。
+- [WebSocket 安全](20-frontend/websocket-security.md)：握手 Origin 校验缺失即 CSWSH——CSRF 的长连接版本。
 
 ## 访问控制与认证类
 

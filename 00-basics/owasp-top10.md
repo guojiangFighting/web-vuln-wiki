@@ -38,6 +38,7 @@ tags: [owasp, basics, checklist]
 | 条目 | 一句话检查点 |
 |------|--------------|
 | [CSRF](../20-frontend/csrf.md) | 写操作有没有 Token / SameSite 保护 |
+| [WebSocket 安全](../20-frontend/websocket-security.md) | WS 握手是否校验 Origin |
 | [开放重定向](../20-frontend/open-redirect.md) | 跳转参数是否可指向外域 |
 | [GraphQL 安全](../30-authn-authz/graphql-security.md) | resolver 是否逐字段做对象级授权 |
 | [IDOR](../30-authn-authz/idor.md) | 换对象 id 能否读改他人资源 |

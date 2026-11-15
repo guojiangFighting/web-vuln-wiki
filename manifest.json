@@ -9,8 +9,8 @@
   },
   "disclaimer": "仅用于授权安全测试与防御学习。",
   "stats": {
-    "topics": 32,
-    "cards": 163,
+    "topics": 33,
+    "cards": 168,
     "categories": [
       "信息泄露与配置类",
       "前端与跨站类",
@@ -307,6 +307,23 @@
         "node"
       ],
       "summary": "JavaScript 里所有对象共享同一个原型（`Object.prototype`），攻击者通过 `__proto__` 键把任意属性写进这个「公共祖先」，从而影响整个应用的对象行为——JS 世界里的「全局变量注入」。",
+      "cards": 5
+    },
+    {
+      "id": "websocket-security",
+      "path": "20-frontend/websocket-security.md",
+      "title": "WebSocket 安全（WebSocket Security）",
+      "category": "前端与跨站类",
+      "severity": "medium",
+      "owasp": "A01:2021-Broken Access Control",
+      "cwe": "CWE-1385",
+      "tags": [
+        "websocket",
+        "cswsh",
+        "frontend",
+        "origin"
+      ],
+      "summary": "WebSocket 握手是 HTTP、连接是长久的——**Cookie 自动附带 + 不受同源策略限制 + 常被忘在鉴权体系外**，三者叠加让「跨站 WebSocket 劫持（CSWSH）」成为 CSRF 的长连接版本。",
       "cards": 5
     },
     {

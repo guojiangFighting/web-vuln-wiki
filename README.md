@@ -1,6 +1,6 @@
 # Web 漏洞学习 Wiki
 
-一个 **LLM 与人类双端优化** 的 Web 漏洞知识库：32 个条目 × 统一结构 × 163 张知识卡。
+一个 **LLM 与人类双端优化** 的 Web 漏洞知识库：33 个条目 × 统一结构 × 168 张知识卡。
 
 > **使用边界**：本库仅用于授权安全测试与防御学习。所有条目默认你在合法授权范围内实践。
 
@@ -13,14 +13,14 @@ web-vuln-wiki/
 ├── manifest.json           ← 机器可读索引（主题/分类/统计）
 ├── 00-basics/              ← 基础：HTTP、编码与绕过、OWASP Top 10
 ├── 10-injection/           ← 注入类：SQLi / NoSQL / 命令 / SSTI / XXE / LDAP / 反序列化 / CRLF
-├── 20-frontend/            ← 前端与跨站类：XSS / CSRF / CORS / 点击劫持 / 开放重定向 / 原型污染
+├── 20-frontend/            ← 前端与跨站类：XSS / CSRF / CORS / WebSocket / 点击劫持 / 开放重定向 / 原型污染
 ├── 30-authn-authz/         ← 访问控制与认证类：IDOR / 越权总类 / JWT / 会话管理 / GraphQL / 加密失败
 ├── 40-files-requests/      ← 文件与请求类：SSRF / 路径穿越 / 文件上传 / 请求走私
 ├── 50-logic-concurrency/   ← 逻辑与并发类：业务逻辑 / 竞态条件 / 缓存攻击
 ├── 60-info-config/         ← 信息泄露与配置类：信息泄露 / 安全配置错误
 ├── cards/
 │   ├── viewer.html         ← 交互式学习卡片（浏览器直接打开）
-│   ├── anki-import.tsv     ← Anki 导入文件（163 张）
+│   ├── anki-import.tsv     ← Anki 导入文件（168 张）
 │   ├── cards.json          ← 合并后的卡片数据（LLM 亦可读）
 │   └── src/<topic>.json    ← 每个条目的卡片源文件
 ├── _templates/             ← 条目模板与卡片 schema（新增条目从这里开始）

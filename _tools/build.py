@@ -30,6 +30,7 @@ TOPICS = [
     ("20-frontend/clickjacking.md", "clickjacking", "前端与跨站类", False),
     ("20-frontend/open-redirect.md", "open-redirect", "前端与跨站类", False),
     ("20-frontend/prototype-pollution.md", "prototype-pollution", "前端与跨站类", False),
+    ("20-frontend/websocket-security.md", "websocket-security", "前端与跨站类", False),
     ("30-authn-authz/idor.md", "idor", "访问控制与认证类", False),
     ("30-authn-authz/access-control.md", "access-control", "访问控制与认证类", False),
     ("30-authn-authz/jwt-attacks.md", "jwt-attacks", "访问控制与认证类", False),

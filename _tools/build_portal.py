@@ -24,6 +24,7 @@ WIKIS = [
     ("web-vuln-wiki", "wiki", "Web 漏洞教科书", "32 个漏洞条目：是什么、为什么、怎么修", "topics"),
     ("web-pentest-playbook", "playbook", "实战手册", "30 个实战条目：怎么打、打不动怎么办（含工具实践）", "entries"),
     ("android-re-wiki", "android", "Android 逆向", "21 个条目：APK 逆向、常见移动漏洞与防护绕过", "entries"),
+    ("binary-re-wiki", "binary", "二进制漏洞", "20 个条目：内存/汇编/保护机制、栈/堆/格式化字符串漏洞与利用", "entries"),
 ]
 
 

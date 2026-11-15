@@ -1,0 +1,16 @@
+{
+  "$comment": "知识卡规范：每个漏洞条目一个独立 JSON 文件，路径 cards/src/<topic-id>.json。每主题 4~6 张卡。字段：id 必填且全局唯一（<topic-id>-cN）；difficulty ∈ basic|advanced|trap；type ∈ 概念|场景|辨析|排查；q/a 必填；hint/pitfall 可选（无则省略）。q 必须能独立被人读懂并作答；a 给完整解释而非一句话；trap 类卡片针对常见错误认知，pitfall 写纠错说明。",
+  "topic": "sqli",
+  "category": "注入类",
+  "cards": [
+    {
+      "id": "sqli-c1",
+      "difficulty": "basic",
+      "type": "概念",
+      "q": "SQL 注入的本质是什么？",
+      "a": "用户输入与 SQL 代码没有分离，输入被拼进语句后，数据库把其中的内容当作 SQL 语法解析，从而改变了语句的结构。修补的核心是让数据永远只作为数据参与查询（参数化），而不是靠过滤字符。",
+      "hint": "想想 ' OR '1'='1 到底改变了什么。",
+      "pitfall": "不要把 SQL 注入简单理解为『万能登录绕过』，登录绕过只是恒真条件的一种表现。"
+    }
+  ]
+}

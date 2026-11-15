@@ -1,0 +1,46 @@
+{
+  "topic": "clickjacking",
+  "category": "前端与跨站类",
+  "cards": [
+    {
+      "id": "clickjacking-c1",
+      "difficulty": "basic",
+      "type": "概念",
+      "q": "clickjacking（点击劫持）的攻击结构是什么？为什么它不需要任何代码漏洞？",
+      "a": "结构：目标页面被套进攻击者页面的透明 iframe，攻击者挪动 iframe 让目标站的敏感按钮精确压在诱饵按钮下面，受害者的点击实际落在目标站按钮上。它不需要代码漏洞：iframe 嵌入是浏览器默认允许的行为，请求由受害者亲手发起（带 Cookie、带 Token、真实交互），服务端视角与正常操作无差别。",
+      "hint": "利用的是『视觉与点击落点不一致』，不是代码缺陷。"
+    },
+    {
+      "id": "clickjacking-c2",
+      "difficulty": "basic",
+      "type": "辨析",
+      "q": "CSRF Token 为什么防不住 clickjacking？",
+      "a": "CSRF Token 防的是『伪造请求』：攻击者域构造的请求拿不到 Token。而 clickjacking 中请求是受害者本人在目标页面里亲手触发的，Token 自然存在且合法，SameSite 同理不拦截。clickjacking 的唯一弱点是『用户看不见自己点了什么』，所以防御方向是禁止被嵌入（响应头）与增加可见的二次确认。",
+      "hint": "Token 防伪造请求，clickjacking 的请求恰好是真的。"
+    },
+    {
+      "id": "clickjacking-c3",
+      "difficulty": "advanced",
+      "type": "排查",
+      "q": "如何在测试中确认 clickjacking 风险？『可被嵌入』和『可被利用』的区别是什么？",
+      "a": "两步：① 检查响应头是否有 CSP frame-ancestors 'none'/'self' 或 X-Frame-Options: DENY/SAMEORIGIN；② 若无防护头，本地构造透明 iframe PoC 验证敏感按钮能否被对位点击。区别：可嵌入只是缺防护（低风险事实），可被利用 = 可嵌入 + 页面存在『单步敏感操作』（如一键删除/授权/支付确认）。报告里必须写出具体可劫持的操作。",
+      "pitfall": "把『没有 X-Frame-Options』直接报高危而不论证敏感操作面，会被误判为配置洁癖。"
+    },
+    {
+      "id": "clickjacking-c4",
+      "difficulty": "advanced",
+      "type": "辨析",
+      "q": "为什么说 JS 方式的 frame-busting（top != self 跳转）不是可靠的修复？",
+      "a": "攻击者可用 <iframe sandbox> 禁用 iframe 内脚本，busting 代码根本不执行；还有多种令 JS 判断失效的变体。可靠的修复只能来自响应头：CSP frame-ancestors（现代标准）+ X-Frame-Options（旧浏览器兼容），浏览器层面强制执行，攻击者无法从 HTML 里绕开。",
+      "hint": "JS 跑在被攻击的页面里，攻击者能控制那个页面的运行环境。"
+    },
+    {
+      "id": "clickjacking-c5",
+      "difficulty": "trap",
+      "type": "辨析",
+      "q": "判断题：clickjacking 只是低危漏洞，实践中可以不修。",
+      "a": "错一半。孤立看典型评级低-中，但修复成本是一行响应头，收益/成本极不对称；且对资金、授权、删除类操作结合社工可升级为高危账号损失。正确态度：作为基线加固项必须修（frame-ancestors 'none'），敏感操作再加二次确认。",
+      "pitfall": "按『默认严重度』而非『本站可劫持的操作价值』评估 clickjacking，是评级错误的主因。"
+    }
+  ]
+}

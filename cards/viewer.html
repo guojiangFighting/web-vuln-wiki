@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web 漏洞知识卡 · 学习面板</title>
+<style>
+  :root {
+    --bg: #0f1419; --panel: #1a2129; --panel2: #222b35; --border: #2f3b47;
+    --text: #e6edf3; --muted: #8b98a5; --accent: #4aa3ff; --good: #3fb950;
+    --bad: #f85149; --trap: #d29922; --adv: #a371f7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+  }
+  header { width: 100%; max-width: 860px; padding: 28px 20px 8px; }
+  h1 { font-size: 22px; font-weight: 700; }
+  .sub { color: var(--muted); font-size: 13px; margin-top: 6px; line-height: 1.6; }
+  .controls {
+    width: 100%; max-width: 860px; padding: 16px 20px;
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  }
+  select, button {
+    background: var(--panel2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer;
+  }
+  select:hover, button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); color: #06121f; border: none; font-weight: 600; }
+  button.ghost { background: transparent; }
+  .toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .toggle button { border: none; border-radius: 0; padding: 8px 16px; }
+  .toggle button.on { background: var(--accent); color: #06121f; font-weight: 600; }
+  .progress-wrap {
+    width: 100%; max-width: 860px; padding: 0 20px 4px;
+    display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--muted);
+  }
+  .bar { flex: 1; height: 6px; background: var(--panel2); border-radius: 3px; overflow: hidden; }
+  .bar > div { height: 100%; background: var(--good); width: 0%; transition: width .3s; }
+  .card-zone { width: 100%; max-width: 860px; padding: 18px 20px; flex: 1; }
+  .card {
+    position: relative; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 26px; min-height: 340px; display: flex;
+    flex-direction: column; gap: 14px; cursor: pointer; user-select: none;
+    box-shadow: 0 6px 24px rgba(0,0,0,.35);
+  }
+  .meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 12px; }
+  .chip { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+  .chip.cat { color: var(--accent); border-color: var(--accent); }
+  .chip.basic { color: #58a6ff; } .chip.advanced { color: var(--adv); } .chip.trap { color: var(--trap); }
+  .mastered-badge { color: var(--good); border-color: var(--good); }
+  .q { font-size: 19px; font-weight: 600; line-height: 1.7; white-space: pre-wrap; }
+  .a { font-size: 15px; line-height: 1.85; color: var(--text); white-space: pre-wrap; display: none; }
+  .hint { color: var(--muted); font-size: 13px; border-left: 3px solid var(--border); padding-left: 10px; line-height: 1.6; }
+  .pitfall { color: #ffb86b; font-size: 13px; border-left: 3px solid var(--trap); padding-left: 10px; line-height: 1.6; display: none; }
+  .card.flipped .a, .card.flipped .pitfall { display: block; }
+  .card.flipped .hint { display: none; }
+  .verdict { display: none; gap: 10px; margin-top: auto; }
+  .card.flipped .verdict { display: flex; }
+  .verdict button { flex: 1; padding: 10px; font-weight: 600; }
+  .verdict .yes { border-color: var(--good); color: var(--good); }
+  .verdict .no { border-color: var(--bad); color: var(--bad); }
+  .nav { display: flex; gap: 10px; justify-content: center; padding: 6px 20px 30px; flex-wrap: wrap; }
+  .kbd { color: var(--muted); font-size: 11px; width: 100%; text-align: center; margin-top: 8px; }
+  kbd { background: var(--panel2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-size: 11px; }
+  .empty { color: var(--muted); text-align: center; padding: 60px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Web 漏洞知识卡</h1>
+  <div class="sub">配套 <b>web-vuln-wiki</b> 使用：先读条目，再用卡片自测。数据来自 <code>cards/cards.js</code>，与 wiki 条目一一对应。</div>
+</header>
+
+<div class="controls">
+  <div class="toggle">
+    <button id="modeLearn" class="on">学习模式</button>
+    <button id="modeQuiz">自测模式</button>
+  </div>
+  <select id="catSel"><option value="">全部分类</option></select>
+  <select id="diffSel">
+    <option value="">全部难度</option>
+    <option value="basic">基础</option>
+    <option value="advanced">进阶</option>
+    <option value="trap">易错</option>
+  </select>
+  <button id="resetBtn" class="ghost">重置进度</button>
+</div>
+
+<div class="progress-wrap">
+  <span id="statText">0 / 0</span>
+  <div class="bar"><div id="barFill"></div></div>
+  <span id="posText">- / -</span>
+</div>
+
+<div class="card-zone" id="zone"></div>
+
+<div class="nav">
+  <button id="prevBtn">← 上一张</button>
+  <button id="flipBtn" class="primary">翻转（空格）</button>
+  <button id="nextBtn">下一张 →</button>
+  <div class="kbd">快捷键：<kbd>空格</kbd> 翻卡 · <kbd>←</kbd><kbd>→</kbd> 切换 · 自测中 <kbd>1</kbd> 认识 / <kbd>2</kbd> 不认识</div>
+</div>
+
+<script src="cards.js"></script>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const LS_KEY = "web-vuln-wiki-mastered-v1";
+  let mastered = new Set(JSON.parse(localStorage.getItem(LS_KEY) || "[]"));
+
+  let mode = "learn";            // learn | quiz
+  let deck = [];                 // 当前牌组（id 列表）
+  let idx = 0;
+  let flipped = false;
+
+  const byId = new Map(CARDS.map(c => [c.id, c]));
+  const cats = [...new Set(CARDS.map(c => c.category))];
+  const catSel = $("catSel");
+  cats.forEach(c => { const o = document.createElement("option"); o.value = o.textContent = c; catSel.appendChild(o); });
+
+  const difficultyName = { basic: "基础", advanced: "进阶", trap: "易错" };
+
+  function rebuild(reshuffle) {
+    const cat = catSel.value, diff = $("diffSel").value;
+    let list = CARDS.filter(c => (!cat || c.category === cat) && (!diff || c.difficulty === diff));
+    deck = list.map(c => c.id);
+    if (reshuffle) {
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+    }
+    idx = 0; flipped = false; render();
+  }
+
+  function save() { localStorage.setItem(LS_KEY, JSON.stringify([...mastered])); }
+
+  function render() {
+    const zone = $("zone");
+    const total = deck.length;
+    const doneCount = deck.filter(id => mastered.has(id)).length;
+    $("statText").textContent = `已掌握 ${doneCount} / ${total}`;
+    $("barFill").style.width = total ? (doneCount / total * 100) + "%" : "0%";
+    if (!total) { zone.innerHTML = '<div class="empty">当前筛选条件下没有卡片。</div>'; $("posText").textContent = "- / -"; return; }
+    idx = Math.min(idx, total - 1);
+    $("posText").textContent = `${idx + 1} / ${total}`;
+
+    const c = byId.get(deck[idx]);
+    const isM = mastered.has(c.id);
+    zone.innerHTML = "";
+    const card = document.createElement("div");
+    card.className = "card" + (flipped ? " flipped" : "");
+    card.innerHTML = `
+      <div class="meta">
+        <span class="chip cat">${c.category}</span>
+        <span class="chip ${c.difficulty}">${difficultyName[c.difficulty]} · ${c.type}</span>
+        <span class="chip">${c.topicTitle}</span>
+        ${isM ? '<span class="chip mastered-badge">✓ 已掌握</span>' : ""}
+      </div>
+      <div class="q"></div>
+      <div class="hint"></div>
+      <div class="a"></div>
+      <div class="pitfall"></div>
+      <div class="verdict">
+        <button class="no">还不熟（2）</button>
+        <button class="yes">掌握了（1）</button>
+      </div>`;
+    // 字段用 textContent 注入，避免任何 HTML 注入面
+    card.querySelector(".q").textContent = "Q：" + c.q;
+    card.querySelector(".hint").textContent = c.hint ? "提示：" + c.hint : "";
+    card.querySelector(".a").textContent = "A：" + c.a;
+    card.querySelector(".pitfall").textContent = c.pitfall ? "⚠ 易错点：" + c.pitfall : "";
+    card.addEventListener("click", e => {
+      if (e.target.tagName !== "BUTTON") { flipped = !flipped; card.classList.toggle("flipped", flipped); }
+    });
+    card.querySelector(".yes").addEventListener("click", () => { mastered.add(c.id); save(); next(); });
+    card.querySelector(".no").addEventListener("click", () => { mastered.delete(c.id); save(); next(); });
+    zone.appendChild(card);
+  }
+
+  function next() { if (idx < deck.length - 1) { idx++; flipped = false; render(); } else { render(); } }
+  function prev() { if (idx > 0) { idx--; flipped = false; render(); } }
+
+  $("flipBtn").addEventListener("click", () => { flipped = !flipped; render(); });
+  $("nextBtn").addEventListener("click", next);
+  $("prevBtn").addEventListener("click", prev);
+  catSel.addEventListener("change", () => rebuild(mode === "quiz"));
+  $("diffSel").addEventListener("change", () => rebuild(mode === "quiz"));
+
+  $("modeLearn").addEventListener("click", () => { mode = "learn"; $("modeLearn").classList.add("on"); $("modeQuiz").classList.remove("on"); rebuild(false); });
+  $("modeQuiz").addEventListener("click", () => { mode = "quiz"; $("modeQuiz").classList.add("on"); $("modeLearn").classList.remove("on"); rebuild(true); });
+  $("resetBtn").addEventListener("click", () => {
+    if (confirm("确定清空全部掌握记录？")) { mastered.clear(); save(); render(); }
+  });
+
+  document.addEventListener("keydown", e => {
+    if (e.target.tagName === "SELECT") return;
+    if (e.code === "Space") { e.preventDefault(); flipped = !flipped; render(); }
+    else if (e.key === "ArrowRight") next();
+    else if (e.key === "ArrowLeft") prev();
+    else if (e.key === "1" && flipped) { const c = byId.get(deck[idx]); mastered.add(c.id); save(); next(); }
+    else if (e.key === "2" && flipped) { const c = byId.get(deck[idx]); mastered.delete(c.id); save(); next(); }
+  });
+
+  rebuild(false);
+})();
+</script>
+</body>
+</html>

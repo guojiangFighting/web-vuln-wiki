@@ -1,0 +1,46 @@
+{
+  "topic": "prototype-pollution",
+  "category": "前端与跨站类",
+  "cards": [
+    {
+      "id": "prototype-pollution-c1",
+      "difficulty": "basic",
+      "type": "概念",
+      "q": "原型污染为什么影响『整个应用』？JS 的什么机制让它成立？",
+      "a": "JS 属性查找沿原型链进行：obj.x 找不到时会查 Object.prototype.x，而所有普通对象共享这同一个原型。攻击者通过 __proto__ 键把属性写进 Object.prototype 后，全应用任何『未显式赋值就读取』该属性的对象都会继承污染值——相当于给所有对象注入了默认值。",
+      "hint": "对象 × 10亿，公共祖先只有一个。"
+    },
+    {
+      "id": "prototype-pollution-c2",
+      "difficulty": "basic",
+      "type": "排查",
+      "q": "如何用最小 payload 确认原型污染存在？前端和服务端各怎么验证？",
+      "a": "注入一个本不存在的全局属性：query 形式 ?__proto__[polluted]=yes，或 JSON body {\"__proto__\":{\"polluted\":\"yes\"}}。前端：控制台执行 ({}).polluted 返回 \"yes\" 即确认；服务端：观察后续响应行为差异，或用回显型接口读 ({}).polluted。关键是『先证污染、再找 gadget』两步走。",
+      "hint": "用一个真实业务里不可能有的属性名，排除巧合。"
+    },
+    {
+      "id": "prototype-pollution-c3",
+      "difficulty": "advanced",
+      "type": "辨析",
+      "q": "代码过滤了 __proto__ 这个键，为什么污染仍可能成立？",
+      "a": "因为通向 Object.prototype 的路径不止字面键一条：constructor[prototype][x] 走构造函数引用可达；JSON.parse 的产物再进递归 merge 时 __proto__ 是普通字符串键可被赋值；只做一层过滤的浅检查挡不住 a[__proto__][b] 的嵌套形态。有效防护必须覆盖一切通向原型的赋值路径，常用 Object.create(null) 目标对象或升级已修复的库。",
+      "hint": "过滤的是『键名字面量』，绕过用的是『等价路径』。"
+    },
+    {
+      "id": "prototype-pollution-c4",
+      "difficulty": "advanced",
+      "type": "辨析",
+      "q": "确认了原型污染存在，危害评级该怎么定？gadget 指什么？",
+      "a": "定级看 gadget：业务代码里『读取被污染属性并做出有意义行为』的位置。有 gadget（权限判断用 user.isAdmin 默认值、配置对象拼模板/路径/命令）→ 可升级 XSS/RCE/越权，按可达危害定高危；找不到 gadget → 报『技术性弱点』并降级，附候选 gadget 审计建议。污染本身只是『全局默认值被注入』，价值由下游消费决定。",
+      "hint": "污染是装弹药，gadget 是扣扳机——没有扳机也要如实报告弹药已上膛。"
+    },
+    {
+      "id": "prototype-pollution-c5",
+      "difficulty": "trap",
+      "type": "辨析",
+      "q": "判断题：JSON.parse 本身不会触发原型污染，所以解析 JSON 的接口无需测试。",
+      "a": "前半句对，后半句错。JSON.parse 确实不触发 setter（字面量 __proto__ 键只是普通属性赋值），但它的产物几乎总要进入业务处理——递归 merge、对象展开、配置合并——这些下游才是 sink。测试对象是『解析产物之后的一切对象操作』，不是解析器本身。",
+      "pitfall": "把『解析器安全』当成『数据流安全』，会漏掉真正出事的合并逻辑。"
+    }
+  ]
+}

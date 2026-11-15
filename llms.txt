@@ -1,0 +1,59 @@
+# Web 漏洞学习 Wiki
+
+> 一个面向 LLM 与人类双端优化的 Web 漏洞知识库。28 个条目，统一结构（一句话/原理/攻击场景/检测/绕过/修复/误区/关联），每个条目配 4~6 张知识卡。仅用于授权安全测试与防御学习。
+
+## 机器可读索引
+
+- [manifest.json](manifest.json)：全部条目的 id / 路径 / 分类 / 严重度 / OWASP 映射 / 一句话摘要 / 卡片数。
+- [cards/cards.json](cards/cards.json)：143 张结构化知识卡（difficulty: basic|advanced|trap；type: 概念|场景|辨析|排查）。
+- [cards/anki-import.tsv](cards/anki-import.tsv)：Anki 导入格式（正面 / 背面 / 标签）。
+- [cards/viewer.html](cards/viewer.html)：人类用交互学习卡片。
+
+## 基础
+
+- [HTTP 基础](00-basics/http-basics.md)：请求结构、方法语义、关键 Header、会话机制、同源策略——读懂一切漏洞条目的前置语言。
+- [编码与绕过](00-basics/encoding-bypass.md)：多层解码错位是所有「绕过」背后的唯一原理。
+- [OWASP Top 10 总览](00-basics/owasp-top10.md)：2021 十大风险类别 + 全部 28 条目的映射表，可作测试 checklist 框架。
+
+## 注入类
+
+- [SQL 注入](10-injection/sql-injection.md)：数据被拼进 SQL 改变语句结构；报错/UNION/盲注/时间盲注全谱，参数化是唯一治本。
+- [NoSQL 注入](10-injection/nosql-injection.md)：JSON 值升级为操作符对象（$ne/$regex）改写查询，类型收窄是 NoSQL 特有的修复点。
+- [命令注入](10-injection/command-injection.md)：Shell 元字符追加命令直达 RCE；盲注入靠时间与带外确认。
+- [SSTI](10-injection/ssti.md)：输入进模板源被当表达式求值；先指纹、再对象图、后执行面的利用方法论。
+- [XXE](10-injection/xxe.md)：外部实体让解析器替你读文件、发请求；修复在解析器配置层（禁 DTD）。
+- [LDAP 注入](10-injection/ldap-injection.md)：括号与通配符改写过滤器；无 UNION，靠枚举与结构泄露说话。
+
+## 前端与跨站类
+
+- [XSS](20-frontend/xss.md)：反射/存储/DOM 三型与四语境逃逸；按上下文输出编码是治本。
+- [CSRF](20-frontend/csrf.md)：Cookie 自动携带 + 请求可预测；Token/SameSite/Origin 三层防御。
+- [CORS 配置错误](20-frontend/cors.md)：Origin 反射 + 凭据 = 把跨域读取的口子开给任意站点。
+- [点击劫持](20-frontend/clickjacking.md)：透明 iframe 视觉欺骗，请求真实因此绕过 CSRF 防御；frame-ancestors 修复。
+- [开放重定向](20-frontend/open-redirect.md)：跳转参数可控；OAuth 域内即升级为授权码泄露。
+- [原型污染](20-frontend/prototype-pollution.md)：__proto__ 写穿全局原型；危害由 gadget 决定。
+
+## 访问控制与认证类
+
+- [IDOR](30-authn-authz/idor.md)：只验登录不验属主；双账号法是黄金测试标准。
+- [失效的访问控制](30-authn-authz/access-control.md)：水平/垂直/未授权三类越权总框架；角色矩阵法与 deny by default。
+- [JWT 攻击](30-authn-authz/jwt-attacks.md)：alg 可控、密钥混淆、声明不校验——算法选择权必须永远在验签方。
+- [会话管理](30-authn-authz/session-management.md)：生成/传输/存储/失效四环节；登出重放是最高频缺陷。
+
+## 文件与请求类
+
+- [SSRF](40-files-requests/ssrf.md)：服务端替你发请求；云元数据是评级上限，解析后按 IP 复核是修复关键。
+- [路径穿越](40-files-requests/path-traversal.md)：../ 与编码变体；规范化后校验前缀，顺序是命门。
+- [文件上传](40-files-requests/file-upload.md)：分水岭是「能否被执行」；断开执行 + 白名单 + 随机文件名成组修复。
+- [请求走私](40-files-requests/request-smuggling.md)：前后端对 CL/TE 的取舍分歧重切请求流；架构级配置病。
+
+## 逻辑与并发类
+
+- [业务逻辑](50-logic-concurrency/business-logic.md)：语法正确语义错误的流程欺骗；状态机枚举法测试。
+- [竞态条件](50-logic-concurrency/race-condition.md)：检查与执行之间的时间窗；唯一约束与原子更新替代应用层检查。
+- [缓存攻击](50-logic-concurrency/cache-attacks.md)：缓存欺骗读他人、缓存投毒毒全体；键集合与影响集合的差集即攻击面。
+
+## 信息泄露与配置类
+
+- [信息泄露](60-info-config/info-disclosure.md)：报错/.git/.env/备份文件；按组合价值评估，泄露即地图。
+- [安全配置错误](60-info-config/misconfiguration.md)：默认凭据、调试端点、过时组件；清单化基线治理。

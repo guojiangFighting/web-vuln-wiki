@@ -1,0 +1,46 @@
+{
+  "topic": "csrf",
+  "category": "前端与跨站类",
+  "cards": [
+    {
+      "id": "csrf-c1",
+      "difficulty": "basic",
+      "type": "概念",
+      "q": "CSRF 攻击成立的三个必要条件是什么？",
+      "a": "① 目标存在有副作用的动作（改邮箱、转账）；② 认证凭据被浏览器自动携带（Cookie 类会话）；③ 请求参数完全可预测（没有一次性 Token）。三者缺一不可——这也是测试时逐条核对防御的框架。",
+      "hint": "动作价值、自动凭据、可预测性。"
+    },
+    {
+      "id": "csrf-c2",
+      "difficulty": "basic",
+      "type": "概念",
+      "q": "为什么同源策略不阻止 CSRF？",
+      "a": "SOP 禁止脚本读取跨源响应（管『读』），但不禁止向跨源发送请求（不管『发』）。CSRF 只需要请求被发出并携带 Cookie，不需要读响应——恶意页面里的 <img src> 或自动提交的表单就能完成攻击，响应内容攻击者根本拿不到也不需要。",
+      "hint": "CSRF 活在『能发不能读』的缝隙里。"
+    },
+    {
+      "id": "csrf-c3",
+      "difficulty": "advanced",
+      "type": "排查",
+      "q": "测试 CSRF 时，如何区分『有 Token 校验』『无校验』『校验存在但可绕』？",
+      "a": "三步试探：① 完全删除 Token 参数重放——成功即无校验；② 保留结构但改成任意值——成功说明只查『存在性』不查『正确性/绑定』；③ 校验有效时检查 Token 是否与会话绑定（用账号 A 的 Token 配账号 B 的会话）以及是否可复用。另测 SameSite：跨站 POST 在 Lax 下本应不带 Cookie，若成功说明 Cookie 未设 SameSite。",
+      "pitfall": "『请求里有 Token 字段』不等于『服务端校验了 Token』，务必做删除与改值实验。"
+    },
+    {
+      "id": "csrf-c4",
+      "difficulty": "advanced",
+      "type": "辨析",
+      "q": "接口只接受 JSON 格式，能不能直接判定它免疫 CSRF？",
+      "a": "不能直接判定。HTML 表单可以用 text/plain 或无 enctype 投递 JSON 形态的 body，若服务端不严格校验 Content-Type 或容忍格式偏差（多余逗号、字段名宽松），仍可命中。真正的免疫来自『凭据不自动携带』——如 Authorization Header Token 存在 localStorage 且要求 JS 显式附带，跨站页面拿不到。",
+      "hint": "免疫的是『凭据携带方式』，不是『body 格式』。"
+    },
+    {
+      "id": "csrf-c5",
+      "difficulty": "trap",
+      "type": "辨析",
+      "q": "判断题：SameSite=Lax 已经成为现代浏览器默认，所以 CSRF 防御可以全靠它。",
+      "a": "错。Lax 允许『顶层导航的 GET』携带 Cookie——GET 型副作用仍可被 CSRF；此外旧浏览器、内嵌 WebView 可能不支持或配置不同；主域被子域 XSS 污染时 Cookie 也可被喂进来。SameSite 是体系性缓解，写操作仍应有 CSRF Token + 高危动作二次确认。",
+      "pitfall": "浏览器默认值是兜底不是防线，纵深防御的每一层都不能省。"
+    }
+  ]
+}

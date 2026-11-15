@@ -1,0 +1,46 @@
+{
+  "topic": "nosql-injection",
+  "category": "注入类",
+  "cards": [
+    {
+      "id": "nosql-injection-c1",
+      "difficulty": "basic",
+      "type": "概念",
+      "q": "NoSQL（MongoDB）注入和 SQL 注入的共同根因是什么？入口上多了一个什么独有的渠道？",
+      "a": "共同根因：数据与查询语法未分离，用户输入被当成查询语言解析。独有渠道：JSON 的值本身可以是对象——把字符串参数升级为 {\"$ne\": \"x\"} 这类操作符对象，查询条件就被改写；这依赖服务端缺少『值必须是标量』的类型收窄。",
+      "hint": "想想 {\"pass\": {\"$ne\": \"x\"}} 为什么能让登录恒真。"
+    },
+    {
+      "id": "nosql-injection-c2",
+      "difficulty": "basic",
+      "type": "辨析",
+      "q": "$ne 操作符注入为什么会造成登录绕过？写出演练时的请求体形态。",
+      "a": "$ne 表示 not equal。请求体 {\"user\":\"admin\",\"pass\":{\"$ne\":\"x\"}} 传给 findOne({user, pass}) 后，条件变成『用户是 admin 且密码不等于 x』——除 x 外任何密码都命中，返回 admin 记录。同类还有 $gt: \"\"、$regex: \".*\"。",
+      "pitfall": "前提是服务端没把 pass 强制收窄为字符串；这正是修复点。"
+    },
+    {
+      "id": "nosql-injection-c3",
+      "difficulty": "advanced",
+      "type": "场景",
+      "q": "无回显场景下，如何用 $regex 实现类似布尔盲注的密码猜解？",
+      "a": "构造 {\"user\":\"admin\",\"pass\":{\"$regex\":\"^a\"}}：若响应表现为『登录成功』，说明密码以 a 开头；逐位推进为 ^ab、^abc……用登录成功与否作为真值信号，与 SQL 布尔盲注同节奏。若登录响应无差异，改用『返回条数』『响应时间』或带外信号作为通道。",
+      "hint": "锚点 ^ 让正则变成『前缀真值判断』。"
+    },
+    {
+      "id": "nosql-injection-c4",
+      "difficulty": "advanced",
+      "type": "排查",
+      "q": "测试中发送 {\"$ne\":\"\"} 得到 500 报错，能否直接报告 NoSQL 注入？还需要什么证据？",
+      "a": "不能。500 可能只是类型异常（服务器把对象当字符串处理时报错），不代表操作符进入了查询语义。需要的强证据：换用语义等价但写法不同的操作符（$ne、$gt、$regex）得到一致的行为变化，且该变化能对应『条件被改写』的具体结果（如查询命中数变化、登录成功）。",
+      "pitfall": "把报错当命中是注入类测试最普遍的假阳性来源。"
+    },
+    {
+      "id": "nosql-injection-c5",
+      "difficulty": "trap",
+      "type": "辨析",
+      "q": "判断题：用了 Mongoose 就不可能有 NoSQL 注入。",
+      "a": "错。Mongoose 的 Schema 类型约束默认有帮助（非预期类型会被 CastError 拒绝或降级），但绕过面仍在：strictQuery 配置、findOne 直接收原始对象、聚合管道（$lookup/$where）不走 Schema 约束、以及代码里对原始 body 的直接使用。Schema 是缓解层，不是替代『输入收窄 + 显式构造查询』的修复。",
+      "pitfall": "框架默认安全 ≠ 架构安全，聚合管道是常被遗忘的逃生口。"
+    }
+  ]
+}

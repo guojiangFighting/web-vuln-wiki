@@ -1,0 +1,46 @@
+{
+  "topic": "open-redirect",
+  "category": "前端与跨站类",
+  "cards": [
+    {
+      "id": "open-redirect-c1",
+      "difficulty": "basic",
+      "type": "概念",
+      "q": "开放重定向的危害为什么『上下限差距巨大』？上限取决于什么？",
+      "a": "下限是钓鱼辅助：可信域名先把用户送上恶意站，仿冒页可信度大增。上限取决于该点是否处在 OAuth/OIDC 流程内：redirect_uri 域内的开放重定向会把授权码（code）送到攻击者域，等同绕过 OAuth 的白名单出口校验，可升级为账号接管。同一个漏洞在不同位置可差三个评级。",
+      "hint": "先查这个跳转点在不在授权/SSO 流程里。"
+    },
+    {
+      "id": "open-redirect-c2",
+      "difficulty": "basic",
+      "type": "辨析",
+      "q": "白名单校验『URL 必须以 / 开头』为什么挡不住 //evil.com？",
+      "a": "//evil.com 是协议相对地址：浏览器把它解析为『沿用当前协议的绝对地址』，host 是 evil.com——它确实以 / 开头，但不是站内相对路径。同理 /\\evil.com 在多数浏览器被按 // 处理。正确校验：必须以单 / 开头且不以 // 或 /\\ 开头，或用 URL 构造函数规范化后比对 origin。",
+      "hint": "『以 / 开头』和『站内路径』不是一回事。"
+    },
+    {
+      "id": "open-redirect-c3",
+      "difficulty": "advanced",
+      "type": "排查",
+      "q": "测试开放重定向时的标准 payload 清单要覆盖哪些解析器差异？",
+      "a": "① 完整外域 https://evil.com；② 协议相对 //evil.com；③ 反斜杠 /\\evil.com；④ userinfo 语法 https://target.com@evil.com（host 实为 evil.com）；⑤ 子串绕过 https://target.com.evil.com；⑥ 编码 %2F%2Fevil.com 赌解码时机；⑦ 协议变体 https:evil.com。同时检查前端 window.location 拼接的 DOM 型跳转。每种对应一种白名单写法，测试是『逐一核对解析行为』而非乱枪打鸟。",
+      "hint": "按『完整域/协议相对/反斜杠/userinfo/子串/编码』六类记忆。"
+    },
+    {
+      "id": "open-redirect-c4",
+      "difficulty": "advanced",
+      "type": "概念",
+      "q": "『索引制回跳』（return_to_id=3）为什么是最彻底的修复方案？",
+      "a": "用户输入永远只是一个指向服务端预定义合法目的地的 id，URL 完全不经过用户之手——不存在可绕过的校验逻辑，因为校验对象消失了。相比之下任何『对 URL 字符串做白名单/正则校验』的方案都要对抗 URL 解析的种种歧义。索引制把安全问题转化为数据字典问题，是白名单思想的极致形态。",
+      "hint": "最好的输入校验是不让输入成为校验对象。"
+    },
+    {
+      "id": "open-redirect-c5",
+      "difficulty": "trap",
+      "type": "辨析",
+      "q": "判断题：跳转参数会先跳到站内 /intermediate 页面再跳到用户参数指定的地址，这不算开放重定向。",
+      "a": "错。『先落站内再跳外』只是加了中间页，最终 Location 仍可完全控制外域，开放重定向成立；加确认提示页（『即将离开本站』）才是有意义的缓解。判断标准是『最终目的地是否可被用户输入控制』，不是跳了几跳。",
+      "pitfall": "链路里出现站内域名不代表安全——最后一跳才是关键。"
+    }
+  ]
+}

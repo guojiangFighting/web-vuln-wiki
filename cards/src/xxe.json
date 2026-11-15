@@ -1,0 +1,46 @@
+{
+  "topic": "xxe",
+  "category": "注入类",
+  "cards": [
+    {
+      "id": "xxe-c1",
+      "difficulty": "basic",
+      "type": "概念",
+      "q": "XXE 的『外部实体』是什么？为什么它能让服务端读文件？",
+      "a": "XML 标准允许在 DOCTYPE 里定义实体（可复用的变量），外部实体指内容来自外部资源的实体：<!ENTITY x SYSTEM \"file:///etc/passwd\">。解析器在解析时会把引用 &x; 的位置替换为该资源的实际内容——文件读取和网络请求由此发生，如果解析结果被回显，内容就出现在响应里。",
+      "hint": "实体 = XML 里的变量，SYSTEM = 变量的值来自哪。"
+    },
+    {
+      "id": "xxe-c2",
+      "difficulty": "basic",
+      "type": "概念",
+      "q": "XXE 的修复为什么几乎完全在『配置层』？写出治本做法。",
+      "a": "因为漏洞源于解析器默认允许 DTD 与外部实体这一『标准行为』，与应用业务代码无关。治本：解析用户 XML 时禁用 DTD（Java disallow-doctype-decl=true、Python 用 defusedxml、.NET DtdProcessing.Prohibit），或至少禁外部实体与外部 DTD 引用。这也意味着修复可以一行配置解决，但必须覆盖每一个解析点。",
+      "pitfall": "『业务代码没问题所以不用管』是 XXE 常被漏修的原因——审计对象是解析器配置，不是业务逻辑。"
+    },
+    {
+      "id": "xxe-c3",
+      "difficulty": "advanced",
+      "type": "场景",
+      "q": "应用接口只收 JSON，还有哪些 XXE 触发面？",
+      "a": "一切『内部会解析 XML』的功能：docx/xlsx 上传（Office 文件本质是 XML 的 zip 包，替换其中部件即可注入）、SVG 头像上传（服务端处理或浏览器渲染时触发）、SAML/SSO 断言、SOAP 服务、RSS/订阅导入、XML 配置导入。触发面判断标准是『哪里解析了未受信 XML』，不是『哪里收 XML 请求』。",
+      "hint": "上传头像（svg）和导入 Excel 是最常被忽略的两个入口。"
+    },
+    {
+      "id": "xxe-c4",
+      "difficulty": "advanced",
+      "type": "场景",
+      "q": "解析结果完全不回显时，如何确认盲 XXE？",
+      "a": "带外（OOB）：实体指向自控的 DNS/HTTP 服务（如自建域名），服务端解析时发起回连，收到请求即确认实体被执行；进一步用参数实体串联，把读取的文件内容编码后拼进回连 URL 带出。Burp Collaborator 或自建 dnslog 是标准工具。",
+      "hint": "回连本身就是强证据，内容外带是加分项。"
+    },
+    {
+      "id": "xxe-c5",
+      "difficulty": "trap",
+      "type": "辨析",
+      "q": "判断题：XXE 只能读文件，所以有出网限制的系统里 XXE 危害有限。",
+      "a": "不完全对。XXE 的危害面是：文件读取、SSRF（http 实体，恰恰用来打出网通道或访问内网服务——出网限制未必挡住对内网的请求）、DoS（实体展开 Billion Laughs）、条件性 RCE（特定解析扩展）。出网受限只影响带外取数，文件读取与内网访问照旧。",
+      "pitfall": "危害评估要按『实体可达的资源』逐项算，不能用单一通道的可用性下结论。"
+    }
+  ]
+}

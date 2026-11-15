@@ -1,0 +1,502 @@
+{
+  "name": "web-vuln-wiki",
+  "description": "Web 漏洞学习知识库：LLM 与人类双端优化。条目结构统一（原理/检测/修复/误区），知识卡 4~6 张/条目。",
+  "generated": "2026-11-16",
+  "entryPoints": {
+    "llm": "llms.txt",
+    "human": "README.md",
+    "machineIndex": "manifest.json"
+  },
+  "disclaimer": "仅用于授权安全测试与防御学习。",
+  "stats": {
+    "topics": 28,
+    "cards": 143,
+    "categories": [
+      "信息泄露与配置类",
+      "前端与跨站类",
+      "基础",
+      "文件与请求类",
+      "注入类",
+      "访问控制与认证类",
+      "逻辑与并发类"
+    ]
+  },
+  "topics": [
+    {
+      "id": "http-basics",
+      "path": "00-basics/http-basics.md",
+      "title": "HTTP 基础（HTTP Essentials）",
+      "category": "基础",
+      "severity": "-",
+      "owasp": "-",
+      "cwe": "-",
+      "tags": [
+        "http",
+        "basics",
+        "headers",
+        "session",
+        "sop"
+      ],
+      "summary": "HTTP 是 Web 攻防的共同语言：绝大多数 Web 漏洞，本质都是「对 HTTP 请求里的某个部分做了不该做的信任」——所以学漏洞，先把请求每一行的含义和信任边界吃透。",
+      "cards": 6
+    },
+    {
+      "id": "encoding-bypass",
+      "path": "00-basics/encoding-bypass.md",
+      "title": "编码与绕过（Encoding & Bypass）",
+      "category": "基础",
+      "severity": "-",
+      "owasp": "-",
+      "cwe": "-",
+      "tags": [
+        "encoding",
+        "bypass",
+        "waf",
+        "basics"
+      ],
+      "summary": "「绕过」的根源不是攻击者聪明，而是同一段数据在链路上要被多层解析器各解码一次——凡是解码次数或顺序不一致的地方，防御看到的东西和最终执行的东西就可能不一样。",
+      "cards": 5
+    },
+    {
+      "id": "owasp-top10",
+      "path": "00-basics/owasp-top10.md",
+      "title": "OWASP Top 10 总览（OWASP Top 10:2021）",
+      "category": "基础",
+      "severity": "-",
+      "owasp": "-",
+      "cwe": "-",
+      "tags": [
+        "owasp",
+        "basics",
+        "checklist"
+      ],
+      "summary": "OWASP Top 10 不是「十大漏洞」，而是行业从海量真实事件里统计出的「十大风险类别」——用它建立测试 checklist 的心智地图，用本 wiki 的具体条目落地每个类别。",
+      "cards": 5
+    },
+    {
+      "id": "sqli",
+      "path": "10-injection/sql-injection.md",
+      "title": "SQL 注入（SQL Injection）",
+      "category": "注入类",
+      "severity": "critical",
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-89",
+      "tags": [
+        "injection",
+        "database",
+        "owasp-top10",
+        "rce"
+      ],
+      "summary": "用户输入被拼进 SQL 语句并改变了语句的结构，攻击者因此能读写数据库中的任意数据，严重时进一步控制服务器。",
+      "cards": 6
+    },
+    {
+      "id": "nosql-injection",
+      "path": "10-injection/nosql-injection.md",
+      "title": "NoSQL 注入（NoSQL Injection）",
+      "category": "注入类",
+      "severity": "high",
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-943",
+      "tags": [
+        "injection",
+        "nosql",
+        "mongodb",
+        "json"
+      ],
+      "summary": "用户输入被拼进 NoSQL 查询（常见 MongoDB），输入里塞进 `$ne`、`$gt` 这类查询操作符就能改写查询条件——和 SQL 注入同根：数据被当成了查询语言。",
+      "cards": 5
+    },
+    {
+      "id": "command-injection",
+      "path": "10-injection/command-injection.md",
+      "title": "命令注入（Command Injection）",
+      "category": "注入类",
+      "severity": "critical",
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-78",
+      "tags": [
+        "injection",
+        "rce",
+        "shell",
+        "owasp-top10"
+      ],
+      "summary": "用户输入被拼进一条交给操作系统 Shell 执行的命令，输入里的 Shell 元字符（`;`、`|`、`` ` ``、`$()`）让攻击者追加自己的命令——通常直接等于远程代码执行（RCE）。",
+      "cards": 5
+    },
+    {
+      "id": "ssti",
+      "path": "10-injection/ssti.md",
+      "title": "服务端模板注入（SSTI: Server-Side Template Injection）",
+      "category": "注入类",
+      "severity": "critical",
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-1336",
+      "tags": [
+        "injection",
+        "ssti",
+        "rce",
+        "template"
+      ],
+      "summary": "用户输入被拼进**模板源代码**再渲染，模板引擎把输入里的 `{{ }}`、`${ }` 当作模板语法求值——从信息泄露到远程代码执行，取决于引擎与沙箱。",
+      "cards": 5
+    },
+    {
+      "id": "xxe",
+      "path": "10-injection/xxe.md",
+      "title": "XML 外部实体注入（XXE: XML External Entity Injection）",
+      "category": "注入类",
+      "severity": "high",
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-611",
+      "tags": [
+        "injection",
+        "xxe",
+        "xml",
+        "ssrf",
+        "file-read"
+      ],
+      "summary": "应用解析用户可控的 XML 时允许外部实体（External Entity），攻击者用 `<!ENTITY>` 定义「内容来自文件或 URL 的变量」，让服务端替他读文件、发请求——一次解析，两条路：文件读取 + SSRF。",
+      "cards": 5
+    },
+    {
+      "id": "ldap-injection",
+      "path": "10-injection/ldap-injection.md",
+      "title": "LDAP 注入（LDAP Injection）",
+      "category": "注入类",
+      "severity": "medium",
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-90",
+      "tags": [
+        "injection",
+        "ldap",
+        "directory"
+      ],
+      "summary": "用户输入被拼进 LDAP 查询过滤器，输入里的括号与 `*` 通配符改写了过滤条件——和 SQL 注入同根，但利用面更窄：没有 UNION，主要靠条件真假与返回条数说话。",
+      "cards": 5
+    },
+    {
+      "id": "xss",
+      "path": "20-frontend/xss.md",
+      "title": "跨站脚本（XSS: Cross-Site Scripting）",
+      "category": "前端与跨站类",
+      "severity": "high",
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-79",
+      "tags": [
+        "xss",
+        "frontend",
+        "injection",
+        "owasp-top10"
+      ],
+      "summary": "攻击者的输入被原样写进受害者的页面，浏览器把它当 HTML/JS 执行——于是攻击者的代码获得了在受害者身份下操作页面的全部能力（读 DOM、发请求、拿 Cookie）。",
+      "cards": 6
+    },
+    {
+      "id": "csrf",
+      "path": "20-frontend/csrf.md",
+      "title": "跨站请求伪造（CSRF: Cross-Site Request Forgery）",
+      "category": "前端与跨站类",
+      "severity": "high",
+      "owasp": "A01:2021-Broken Access Control",
+      "cwe": "CWE-352",
+      "tags": [
+        "csrf",
+        "frontend",
+        "session",
+        "owasp-top10"
+      ],
+      "summary": "受害者浏览器会自动携带 Cookie 发请求，攻击者诱导它在自己的网站上发出指向目标的请求——服务端看到的是「带合法会话的请求」，无法区分是受害者本人点的还是恶意页面代发的。",
+      "cards": 5
+    },
+    {
+      "id": "cors",
+      "path": "20-frontend/cors.md",
+      "title": "CORS 配置错误（CORS Misconfiguration）",
+      "category": "前端与跨站类",
+      "severity": "medium",
+      "owasp": "A05:2021-Security Misconfiguration",
+      "cwe": "CWE-942",
+      "tags": [
+        "cors",
+        "frontend",
+        "misconfiguration"
+      ],
+      "summary": "CORS 是同源策略的官方「开洞」机制——配置错误等于把「跨域读取用户数据」的口子开给了攻击者的网站。",
+      "cards": 5
+    },
+    {
+      "id": "clickjacking",
+      "path": "20-frontend/clickjacking.md",
+      "title": "点击劫持（Clickjacking / UI Redressing）",
+      "category": "前端与跨站类",
+      "severity": "low",
+      "owasp": "A05:2021-Security Misconfiguration",
+      "cwe": "CWE-1021",
+      "tags": [
+        "clickjacking",
+        "frontend",
+        "iframe"
+      ],
+      "summary": "攻击者把目标网站套进一个透明 iframe 叠在自己的页面上，受害者以为在点「领取奖品」，实际点的是底下那个看不见的「删除账号」按钮——利用的是「视觉欺骗」，不是代码漏洞。",
+      "cards": 5
+    },
+    {
+      "id": "open-redirect",
+      "path": "20-frontend/open-redirect.md",
+      "title": "开放重定向（Open Redirect）",
+      "category": "前端与跨站类",
+      "severity": "low",
+      "owasp": "A01:2021-Broken Access Control",
+      "cwe": "CWE-601",
+      "tags": [
+        "redirect",
+        "phishing",
+        "oauth",
+        "frontend"
+      ],
+      "summary": "跳转目标取自用户输入且未校验，攻击者能让你的域名把受害者送到恶意网站——单独是低危的钓鱼辅助，但它能让 OAuth 的授权码「合法地」流进攻击者手里，那时就是高危。",
+      "cards": 5
+    },
+    {
+      "id": "prototype-pollution",
+      "path": "20-frontend/prototype-pollution.md",
+      "title": "原型污染（Prototype Pollution）",
+      "category": "前端与跨站类",
+      "severity": "high",
+      "owasp": "A03:2021-Injection",
+      "cwe": "CWE-1321",
+      "tags": [
+        "prototype-pollution",
+        "javascript",
+        "frontend",
+        "node"
+      ],
+      "summary": "JavaScript 里所有对象共享同一个原型（`Object.prototype`），攻击者通过 `__proto__` 键把任意属性写进这个「公共祖先」，从而影响整个应用的对象行为——JS 世界里的「全局变量注入」。",
+      "cards": 5
+    },
+    {
+      "id": "idor",
+      "path": "30-authn-authz/idor.md",
+      "title": "不安全的直接对象引用（IDOR: Insecure Direct Object Reference）",
+      "category": "访问控制与认证类",
+      "severity": "high",
+      "owasp": "A01:2021-Broken Access Control",
+      "cwe": "CWE-639",
+      "tags": [
+        "idor",
+        "access-control",
+        "api",
+        "owasp-top10"
+      ],
+      "summary": "接口用 id/uuid/订单号这类「对象引用」定位资源，却只校验了「登录没登录」，没校验「这个对象是不是你的」——把 id 换成别人的，别人的数据就到手了。这是水平越权的最典型形态。",
+      "cards": 5
+    },
+    {
+      "id": "access-control",
+      "path": "30-authn-authz/access-control.md",
+      "title": "失效的访问控制（Broken Access Control）",
+      "category": "访问控制与认证类",
+      "severity": "critical",
+      "owasp": "A01:2021-Broken Access Control",
+      "cwe": "CWE-285",
+      "tags": [
+        "access-control",
+        "authorization",
+        "owasp-top10"
+      ],
+      "summary": "服务端没有对「每个请求 × 每个对象」逐一回答「这个身份能不能做这件事」——IDOR 是它的水平越权特例，这一条目讲的是全局框架：水平越权、垂直越权、未授权访问，以及把它们系统测出来的方法。",
+      "cards": 5
+    },
+    {
+      "id": "jwt-attacks",
+      "path": "30-authn-authz/jwt-attacks.md",
+      "title": "JWT 攻击（JWT Attacks）",
+      "category": "访问控制与认证类",
+      "severity": "high",
+      "owasp": "A07:2021-Identification and Authentication Failures",
+      "cwe": "CWE-347",
+      "tags": [
+        "jwt",
+        "auth",
+        "tokens",
+        "session"
+      ],
+      "summary": "JWT 的安全性完全押在「签名被正确校验」这一件事上——alg 可控、密钥误用、声明不校验，任何一处出错，攻击者就能伪造任意身份的令牌。",
+      "cards": 5
+    },
+    {
+      "id": "session-management",
+      "path": "30-authn-authz/session-management.md",
+      "title": "会话管理缺陷（Session Management Flaws）",
+      "category": "访问控制与认证类",
+      "severity": "high",
+      "owasp": "A07:2021-Identification and Authentication Failures",
+      "cwe": "CWE-384",
+      "tags": [
+        "session",
+        "cookie",
+        "auth",
+        "lifecycle"
+      ],
+      "summary": "会话是从「登录成功」到「登出失效」的整条生命周期——生成可预测、传输可截获、失效不彻底，任何一环的缺陷都让攻击者无需密码就能持有你的身份。",
+      "cards": 5
+    },
+    {
+      "id": "ssrf",
+      "path": "40-files-requests/ssrf.md",
+      "title": "服务端请求伪造（SSRF: Server-Side Request Forgery）",
+      "category": "文件与请求类",
+      "severity": "high",
+      "owasp": "A10:2021-SSRF",
+      "cwe": "CWE-918",
+      "tags": [
+        "ssrf",
+        "internal-network",
+        "cloud-metadata",
+        "owasp-top10"
+      ],
+      "summary": "应用替用户发起网络请求且目标可控——攻击者借用服务器的网络位置，访问它才能访问的东西：内网服务、云元数据、本机端口。服务器是攻击者的「网络代理」。",
+      "cards": 5
+    },
+    {
+      "id": "path-traversal",
+      "path": "40-files-requests/path-traversal.md",
+      "title": "路径穿越（Path Traversal / LFI）",
+      "category": "文件与请求类",
+      "severity": "high",
+      "owasp": "A01:2021-Broken Access Control",
+      "cwe": "CWE-22",
+      "tags": [
+        "traversal",
+        "lfi",
+        "file-read",
+        "owasp-top10"
+      ],
+      "summary": "用户输入被拼进文件路径且未限定在基准目录内，`../` 让「读头像」变成「读任意文件」——文件系统没有 Web 路由的概念，路径字符串就是它的 API。",
+      "cards": 5
+    },
+    {
+      "id": "file-upload",
+      "path": "40-files-requests/file-upload.md",
+      "title": "文件上传漏洞（Unrestricted File Upload）",
+      "category": "文件与请求类",
+      "severity": "critical",
+      "owasp": "A01:2021-Broken Access Control（含 CWE-434）",
+      "cwe": "CWE-434",
+      "tags": [
+        "file-upload",
+        "rce",
+        "owasp-top10"
+      ],
+      "summary": "上传本身不是漏洞——「传上去的内容被当作代码执行」才是。判断上传安全的唯一分水岭：**上传的文件能否在服务器语境下被执行**。",
+      "cards": 5
+    },
+    {
+      "id": "request-smuggling",
+      "path": "40-files-requests/request-smuggling.md",
+      "title": "HTTP 请求走私（HTTP Request Smuggling）",
+      "category": "文件与请求类",
+      "severity": "high",
+      "owasp": "A05:2021-Security Misconfiguration",
+      "cwe": "CWE-444",
+      "tags": [
+        "smuggling",
+        "proxy",
+        "http",
+        "misconfiguration"
+      ],
+      "summary": "前端与后端对「一条请求在哪里结束」理解不一致——`Content-Length` 与 `Transfer-Encoding` 的取舍分歧让攻击者构造的请求被「重新切分」，多余的部分被拼进下一个人的请求里。这是代理链的架构级配置病。",
+      "cards": 5
+    },
+    {
+      "id": "business-logic",
+      "path": "50-logic-concurrency/business-logic.md",
+      "title": "业务逻辑漏洞（Business Logic Vulnerabilities）",
+      "category": "逻辑与并发类",
+      "severity": "high",
+      "owasp": "A04:2021-Insecure Design",
+      "cwe": "CWE-840",
+      "tags": [
+        "logic",
+        "business",
+        "insecure-design",
+        "owasp-top10"
+      ],
+      "summary": "请求语法完全正确、参数完全合法，但业务语义错了——用「负数买商品」「跳过支付直接发货」这类「开发者没想到的状态」完成本不该完成的交易。它不是代码错误，是设计缺口。",
+      "cards": 5
+    },
+    {
+      "id": "race-condition",
+      "path": "50-logic-concurrency/race-condition.md",
+      "title": "竞态条件（Race Condition）",
+      "category": "逻辑与并发类",
+      "severity": "high",
+      "owasp": "A04:2021-Insecure Design",
+      "cwe": "CWE-362",
+      "tags": [
+        "race-condition",
+        "toctou",
+        "concurrency",
+        "insecure-design"
+      ],
+      "summary": "「检查」和「执行」之间有时间窗，多个请求挤进同一窗口时全部通过了同一次检查——优惠券领一次变领十次。它是一切「一次限额」类规则在并发面前的通病。",
+      "cards": 5
+    },
+    {
+      "id": "cache-attacks",
+      "path": "50-logic-concurrency/cache-attacks.md",
+      "title": "Web 缓存攻击（缓存欺骗与缓存投毒）",
+      "category": "逻辑与并发类",
+      "severity": "medium",
+      "owasp": "A05:2021-Security Misconfiguration",
+      "cwe": "-",
+      "tags": [
+        "cache",
+        "cdn",
+        "deception",
+        "poisoning"
+      ],
+      "summary": "缓存的两个安全假设——「这个 URL 的响应对所有人一样」与「进缓存键的内容决定响应内容」——只要有一个不成立，就会出现「骗缓存存下你的私人页面」（缓存欺骗）或「把恶意内容注入所有人看到的页面」（缓存投毒）。",
+      "cards": 5
+    },
+    {
+      "id": "info-disclosure",
+      "path": "60-info-config/info-disclosure.md",
+      "title": "信息泄露（Information Disclosure）",
+      "category": "信息泄露与配置类",
+      "severity": "medium",
+      "owasp": "A05:2021-Security Misconfiguration",
+      "cwe": "CWE-200",
+      "tags": [
+        "info-disclosure",
+        "errors",
+        "git",
+        "backup",
+        "recon"
+      ],
+      "summary": "单条泄露往往只是「低危的不体面」，但泄露信息组合起来就是攻击者的作战地图——版本号接已知漏洞、源码接隐藏端点、备份文件接整套数据库。评估信息泄露，永远按「组合价值」算。",
+      "cards": 5
+    },
+    {
+      "id": "misconfiguration",
+      "path": "60-info-config/misconfiguration.md",
+      "title": "安全配置错误（Security Misconfiguration）",
+      "category": "信息泄露与配置类",
+      "severity": "high",
+      "owasp": "A05:2021-Security Misconfiguration",
+      "cwe": "CWE-16",
+      "tags": [
+        "misconfiguration",
+        "defaults",
+        "hardening",
+        "owasp-top10"
+      ],
+      "summary": "代码没写错，但系统「出厂状态」直接上了线——默认口令、调试端点、多余功能、过时组件。它是 A05 类的汇总条目：凡是「改配置就能修」的问题都住在这里。",
+      "cards": 5
+    }
+  ],
+  "cardsFile": "cards/cards.json",
+  "ankiImport": "cards/anki-import.tsv",
+  "viewer": "cards/viewer.html"
+}

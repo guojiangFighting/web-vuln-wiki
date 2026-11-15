@@ -184,14 +184,15 @@
   function showHome() {
     $("crumb").innerHTML = "首页";
     const total = ALL.length, done = ALL.filter(mark).length;
+    const statHtml = PORTAL_DATA.wikis.map(w =>
+      `<div class="stat"><div class="n">${w.entries.length}</div><div class="l">${w.name}条目</div></div>`).join("");
     $("view").innerHTML = `
       <div class="home-hero">
         <h2>👋 欢迎开始系统学习</h2>
-        <p>这里合并了 <b>Web 漏洞教科书</b>（是什么、为什么、怎么修）与 <b>实战手册</b>（怎么打、打不动怎么办）。
+        <p>这里合并了 <b>Web 漏洞教科书</b>（是什么、为什么、怎么修）、<b>实战手册</b>（怎么打、打不动怎么办）与 <b>Android 逆向</b>（移动端安全）。
         建议：<b>教科书打底 → 靶场动手 → 手册解题 → 知识卡自测</b>。所有内容仅用于授权安全测试与防御学习。</p>
         <div class="stat-row">
-          <div class="stat"><div class="n">${PORTAL_DATA.wikis[0].entries.length}</div><div class="l">教科书条目</div></div>
-          <div class="stat"><div class="n">${(PORTAL_DATA.wikis[1] || { entries: [] }).entries.length}</div><div class="l">实战条目</div></div>
+          ${statHtml}
           <div class="stat"><div class="n">${PORTAL_DATA.cardCount}</div><div class="l">知识卡</div></div>
           <div class="stat"><div class="n">${done}/${total}</div><div class="l">已读进度</div></div>
         </div>
@@ -214,6 +215,9 @@
         </div>
         <div class="home-card" onclick="window.open('../cards/viewer.html')">
           <h3>⑥ 每天 10 分钟知识卡</h3><p>163 张卡，基础/进阶/易错三档难度，支持自测模式与进度记忆——通勤、碎片时间都适用。</p><span class="go">打开卡片 →</span>
+        </div>
+        <div class="home-card" onclick="location.hash='#/android/apk-structure'">
+          <h3>⑦ Android 逆向入门</h3><p>第三条线：从 APK 结构与签名讲起，覆盖导出组件/WebView 等常见移动漏洞，root/加固/证书绑定绕过，以及 jadx/frida/drozer 工具实践。</p><span class="go">进入 Android 线 →</span>
         </div>
       </div>`;
   }

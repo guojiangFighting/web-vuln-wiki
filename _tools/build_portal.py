@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""统一学习门户构建脚本：把两个 wiki 的全部条目渲染成 HTML，生成 portal/content.js
+"""统一学习门户构建脚本：把学习体系中全部 wiki 的条目渲染成 HTML，生成 portal/content.js
 用法（在 web-vuln-wiki 目录）:
   python _tools/build_portal.py
-依赖: pip install markdown；要求 ../web-pentest-playbook 与本库同级。
+依赖: pip install markdown；要求三个 wiki 目录同级。
 """
 import json, re, sys, io, os
 from pathlib import Path
@@ -11,48 +11,57 @@ from datetime import date
 import markdown
 
 HERE = Path(__file__).resolve().parent.parent          # web-vuln-wiki/
-PARENT = HERE.parent                                    # 两库的父目录
-PLAYBOOK = PARENT / "web-pentest-playbook"
+PARENT = HERE.parent
 OUT_DIR = HERE / "portal"
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 MD = markdown.Markdown(extensions=["tables", "fenced_code"])
-
 FM_RE = re.compile(r"^---\n.*?\n---\n", re.S)
 A_RE = re.compile(r'(<a\s+href=")([^"]+)(")')
 
+# 学习体系注册表：wiki 目录名 -> (路由 id, 展示名, 描述)
+WIKIS = [
+    ("web-vuln-wiki", "wiki", "Web 漏洞教科书", "32 个漏洞条目：是什么、为什么、怎么修", "topics"),
+    ("web-pentest-playbook", "playbook", "实战手册", "30 个实战条目：怎么打、打不动怎么办（含工具实践）", "entries"),
+    ("android-re-wiki", "android", "Android 逆向", "21 个条目：APK 逆向、常见移动漏洞与防护绕过", "entries"),
+]
 
-def build_path_map(wiki_root_name, manifest):
-    """路径 -> entry id 映射（含跨库）。键形如 'web-vuln-wiki/10-injection/xss.md'"""
+
+def load_manifest(p):
+    return json.loads(p.read_text(encoding="utf-8"))
+
+
+def build_path_map(wiki_root_name, manifest, list_key, wid):
     m = {}
-    for e in manifest["entries"] if "entries" in manifest else manifest["topics"]:
-        key = f"{wiki_root_name}/{e['path']}"
-        m[key] = e["id"]
+    for e in manifest[list_key]:
+        m[f"{wiki_root_name}/{e['path']}"] = (wid, e["id"])
     return m
 
 
+PATH_MAP = {}
+for root, wid, _, _, list_key in WIKIS:
+    PATH_MAP.update(build_path_map(root, load_manifest(PARENT / root / "manifest.json"), list_key, wid))
+
+
 def rewrite_links(html, entry_full_rel):
-    """把条目内相对 .md 链接改写为 SPA 路由 #/<wiki>/<id>；其余保留。"""
     def repl(m):
         href = m.group(2)
         if href.startswith(("http://", "https://", "#", "mailto:")):
             return m.group(0)
-        base = os.path.dirname(entry_full_rel)
-        resolved = os.path.normpath(os.path.join(base, href)).replace("\\", "/")
+        resolved = os.path.normpath(os.path.join(os.path.dirname(entry_full_rel), href)).replace("\\", "/")
         if resolved in PATH_MAP:
             wiki_name, entry_id = PATH_MAP[resolved]
             return f'{m.group(1)}#/{wiki_name}/{entry_id}{m.group(3)}'
-        # 非条目链接（如 viewer.html）保持相对——由 portal 目录修正到 ../cards/
         if "cards/viewer.html" in resolved:
             return f'{m.group(1)}../cards/viewer.html{m.group(3)}'
         return m.group(0)
     return A_RE.sub(repl, html)
 
 
-def render_entry(wiki_name, full_rel, abs_path, meta):
+def render_entry(full_rel, abs_path, meta):
     raw = abs_path.read_text(encoding="utf-8")
     body = FM_RE.sub("", raw, count=1)
-    body = re.sub(r"^#\s+.+\n+", "", body, count=1)   # 标题已由 entry-head 渲染，去掉正文重复 H1
+    body = re.sub(r"^#\s+.+\n+", "", body, count=1, flags=re.M)   # 去掉正文首个 H1（标题已由 entry-head 渲染）
     MD.reset()
     html = MD.convert(body)
     html = rewrite_links(html, full_rel)
@@ -68,38 +77,19 @@ def render_entry(wiki_name, full_rel, abs_path, meta):
     }
 
 
-def load_manifest(p):
-    return json.loads(p.read_text(encoding="utf-8"))
-
-
-PATH_MAP = {}
 wikis_out = []
-
-wiki_manifest = load_manifest(HERE / "manifest.json")
-PATH_MAP.update(build_path_map("wiki", wiki_manifest))
-entries = []
-for t in wiki_manifest["topics"]:
-    full_rel = f"web-vuln-wiki/{t['path']}"
-    entries.append(render_entry("wiki", full_rel, HERE / t["path"], {
-        "id": t["id"], "title": t["title"], "category": t["category"],
-        "path": t["path"], "summary": t.get("summary", ""),
-        "severity": t.get("severity", ""), "owasp": t.get("owasp", ""),
-    }))
-wikis_out.append({"id": "wiki", "name": "Web 漏洞教科书", "desc": "32 个漏洞条目：是什么、为什么、怎么修",
-                  "entries": entries})
-
-if PLAYBOOK.exists():
-    pb_manifest = load_manifest(PLAYBOOK / "manifest.json")
-    PATH_MAP.update(build_path_map("playbook", pb_manifest))
-    entries = []
-    for e in pb_manifest["entries"]:
-        full_rel = f"web-pentest-playbook/{e['path']}"
-        entries.append(render_entry("playbook", full_rel, PLAYBOOK / e["path"], e))
-    wikis_out.append({"id": "playbook", "name": "实战手册",
-                      "desc": "30 个实战条目：怎么打、打不动怎么办（含工具实践）",
-                      "entries": entries})
-
 card_count = 0
+for root, wid, name, desc, list_key in WIKIS:
+    root_path = PARENT / root
+    if not root_path.exists():
+        print(f"[跳过] {root} 不存在")
+        continue
+    manifest = load_manifest(root_path / "manifest.json")
+    entries = []
+    for e in manifest[list_key]:
+        entries.append(render_entry(f"{root}/{e['path']}", root_path / e["path"], e))
+    wikis_out.append({"id": wid, "name": name, "desc": desc, "entries": entries})
+
 cards_path = HERE / "cards" / "cards.json"
 if cards_path.exists():
     card_count = load_manifest(cards_path).get("count", 0)
